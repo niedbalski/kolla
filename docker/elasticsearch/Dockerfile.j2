@@ -5,6 +5,13 @@ LABEL maintainer="{{ maintainer }}" name="{{ image_name }}" build-date="{{ build
 
 {% import "macros.j2" as macros with context %}
 
+{% if base_arch not in ['aarch64', 'x86_64'] %}
+
+RUN echo 'There are no Elasticsearch external repositories for {{ base_arch }}' \
+    && /bin/false
+
+{% endif %}
+
 {{ macros.configure_user(name='elasticsearch', shell='/bin/bash', homedir='/usr/share/elasticsearch') }}
 
 {% if base_distro in ['centos', 'oraclelinux', 'rhel'] %}
@@ -21,7 +28,11 @@ ENV JAVA_HOME /usr/lib/jvm/jre-1.7.0-openjdk/
        'openjdk-8-jre'
     ] %}
 
+{% if base_arch == 'aarch64' %}
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-arm64/
+{% else %}
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+{% endif %}
 
 {% endif %}
 
